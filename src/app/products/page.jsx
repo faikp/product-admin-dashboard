@@ -27,6 +27,7 @@ export default function Products() {
     searchParams.get("category") || "",
   );
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (totalPages > 0 && page > totalPages) {
@@ -48,6 +49,7 @@ export default function Products() {
     const timer = setTimeout(() => {
       async function loadProducts() {
         try {
+          setLoading(true);
           if (search.trim()) {
             const data = await searchProducts(search, controller.signal);
 
@@ -68,6 +70,8 @@ export default function Products() {
           }
 
           console.error("Failed to load products:", error);
+        } finally {
+          setLoading(false);
         }
       }
 
@@ -203,83 +207,95 @@ export default function Products() {
         </select>
       </div>
 
-      <div className="hidden overflow-x-auto rounded-xl border bg-white shadow-sm md:block">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="border p-3 text-left">Image</th>
-              <th className="border p-3 text-left">Title</th>
-              <th className="border p-3 text-left">Category</th>
-              <th className="border p-3 text-left">Price</th>
-              <th className="border p-3 text-left">Rating</th>
-              <th className="border p-3 text-left">Stock</th>
-            </tr>
-          </thead>
+      {loading ? (
+        <div className="flex min-h-[300px] items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>
 
-          <tbody>
+            <p className="text-sm text-gray-500">Loading products...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="hidden overflow-x-auto rounded-xl border bg-white shadow-sm md:block">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border p-3 text-left">Image</th>
+                  <th className="border p-3 text-left">Title</th>
+                  <th className="border p-3 text-left">Category</th>
+                  <th className="border p-3 text-left">Price</th>
+                  <th className="border p-3 text-left">Rating</th>
+                  <th className="border p-3 text-left">Stock</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {sortedProducts.map((product) => (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    <td className="border p-3">
+                      <img
+                        src={product.thumbnail}
+                        alt={product.title}
+                        className="h-16 w-16 rounded-lg object-cover"
+                      />
+                    </td>
+
+                    <td className="border p-3">
+                      <Link
+                        href={`/products/${product.id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {product.title}
+                      </Link>
+                    </td>
+
+                    <td className="border p-3">{product.category}</td>
+
+                    <td className="border p-3">${product.price}</td>
+
+                    <td className="border p-3">⭐ {product.rating}</td>
+
+                    <td className="border p-3">{product.stock}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="grid gap-4 md:hidden">
             {sortedProducts.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50">
-                <td className="border p-3">
-                  <img
-                    src={product.thumbnail}
-                    alt={product.title}
-                    className="h-16 w-16 rounded-lg object-cover"
-                  />
-                </td>
+              <div
+                key={product.id}
+                className="rounded-xl border bg-white p-4 shadow-sm"
+              >
+                <img
+                  src={product.thumbnail}
+                  alt={product.title}
+                  className="mb-3 h-48 w-full rounded-lg object-cover"
+                  loading="lazy"
+                />
 
-                <td className="border p-3">
+                <h2 className="text-lg font-semibold text-gray-900">
                   <Link
                     href={`/products/${product.id}`}
                     className="font-medium hover:underline"
                   >
                     {product.title}
                   </Link>
-                </td>
+                </h2>
 
-                <td className="border p-3">{product.category}</td>
+                <p className="mt-1 text-sm text-gray-500">{product.category}</p>
 
-                <td className="border p-3">${product.price}</td>
-
-                <td className="border p-3">⭐ {product.rating}</td>
-
-                <td className="border p-3">{product.stock}</td>
-              </tr>
+                <div className="mt-3 space-y-1 text-sm">
+                  <p className="font-medium">Price: ${product.price}</p>
+                  <p>Rating: ⭐ {product.rating}</p>
+                  <p>Stock: {product.stock}</p>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="grid gap-4 md:hidden">
-        {sortedProducts.map((product) => (
-          <div
-            key={product.id}
-            className="rounded-xl border bg-white p-4 shadow-sm"
-          >
-            <img
-              src={product.thumbnail}
-              alt={product.title}
-              className="mb-3 h-48 w-full rounded-lg object-cover"
-              loading="lazy"
-            />
-
-            <h2 className="text-lg font-semibold text-gray-900">
-              <Link
-                href={`/products/${product.id}`}
-                className="font-medium hover:underline"
-              >
-                {product.title}
-              </Link>
-            </h2>
-
-            <p className="mt-1 text-sm text-gray-500">{product.category}</p>
-
-            <div className="mt-3 space-y-1 text-sm">
-              <p className="font-medium">Price: ${product.price}</p>
-              <p>Rating: ⭐ {product.rating}</p>
-              <p>Stock: {product.stock}</p>
-            </div>
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       <div className="mb-4 flex items-center justify-end gap-2">
         <label htmlFor="page-size" className="text-sm text-gray-600">
