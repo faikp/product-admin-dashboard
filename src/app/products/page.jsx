@@ -145,7 +145,7 @@ export default function Products() {
         <button
           type="button"
           onClick={() => router.push("/products/add")}
-          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+          className="hidden mt-4 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
         >
           Add Product
         </button>
