@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getProducts } from "@/services/product";
+import { getProducts, searchProducts } from "@/services/product";
 
 export default function Products() {
   const router = useRouter();
   const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -17,14 +18,38 @@ export default function Products() {
   }, [router]);
 
   useEffect(() => {
-    async function loadProducts() {
-      const data = await getProducts();
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      async function loadProducts() {
+        try {
+          if (search.trim()) {
+            const data = await searchProducts(search, controller.signal);
 
-      setProducts(data.products);
-    }
+            setProducts(data.products);
 
-    loadProducts();
-  }, []);
+            return;
+          }
+
+          const data = await getProducts();
+
+          setProducts(data.products);
+        } catch (error) {
+          if (error.code === "ERR_CANCELED") {
+            return;
+          }
+
+          console.error("Failed to load products:", error);
+        }
+      }
+
+      loadProducts();
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [search]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -50,6 +75,8 @@ export default function Products() {
         <input
           type="text"
           placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>

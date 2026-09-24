@@ -5,3 +5,14 @@ export async function getProducts() {
 
     return response.data
 }
+
+export async function searchProducts(query, signal) {
+    const response = await api.get("/products/search",{
+        params: {
+            q: query,
+        },
+        signal,
+    });
+
+    return response.data
+}
