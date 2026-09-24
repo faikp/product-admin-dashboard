@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getProducts, searchProducts } from "@/services/product";
+import {
+  getProducts,
+  searchProducts,
+  getCategories,
+  getProductsByCategory,
+} from "@/services/product";
 
 export default function Products() {
   const router = useRouter();
@@ -12,6 +17,9 @@ export default function Products() {
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
   const totalPages = Math.ceil(total / limit);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [sortBy, setSortBy] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -35,7 +43,9 @@ export default function Products() {
             return;
           }
 
-          const data = await getProducts(limit, skip);
+          const data = selectedCategory
+            ? await getProductsByCategory(selectedCategory, limit, skip)
+            : await getProducts(limit, skip);
 
           setProducts(data.products);
           setTotal(data.total);
@@ -55,12 +65,38 @@ export default function Products() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [search, page, limit]);
+  }, [search, page, limit, selectedCategory]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      const data = await getCategories();
+
+      setCategories(data);
+    }
+
+    loadCategories();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     router.replace("/login");
   };
+
+  const sortedProducts = [...products].sort((a, b) => {
+    if (sortBy === "price") {
+      return a.price - b.price;
+    }
+
+    if (sortBy === "rating") {
+      return b.rating - a.rating;
+    }
+
+    if (sortBy === "title") {
+      return a.title.localeCompare(b.title);
+    }
+
+    return 0;
+  });
 
   return (
     <main className="min-h-screen w-full bg-gray-50 p-4 sm:p-6">
@@ -87,6 +123,41 @@ export default function Products() {
         />
       </div>
 
+      <div className="mb-6 max-w-xl">
+        <select
+          value={selectedCategory}
+          onChange={(event) => {
+            setSelectedCategory(event.target.value);
+            setPage(1);
+          }}
+          className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Categories</option>
+
+          {categories.map((category) => (
+            <option key={category.slug} value={category.slug}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-6 max-w-xl">
+        <select
+          value={sortBy}
+          onChange={(event) => {
+            setSortBy(event.target.value);
+            setPage(1);
+          }}
+          className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sort By</option>
+          <option value="price">Price</option>
+          <option value="rating">Rating</option>
+          <option value="title">Title</option>
+        </select>
+      </div>
+
       <div className="hidden overflow-x-auto rounded-xl border bg-white shadow-sm md:block">
         <table className="w-full border-collapse">
           <thead>
@@ -101,7 +172,7 @@ export default function Products() {
           </thead>
 
           <tbody>
-            {products.map((product) => (
+            {sortedProducts.map((product) => (
               <tr key={product.id} className="hover:bg-gray-50">
                 <td className="border p-3">
                   <img
@@ -126,7 +197,7 @@ export default function Products() {
         </table>
       </div>
       <div className="grid gap-4 md:hidden">
-        {products.map((product) => (
+        {sortedProducts.map((product) => (
           <div
             key={product.id}
             className="rounded-xl border bg-white p-4 shadow-sm"
