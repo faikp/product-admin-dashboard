@@ -8,6 +8,10 @@ export default function Products() {
   const router = useRouter();
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const totalPages = Math.ceil(total / limit);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -19,6 +23,7 @@ export default function Products() {
 
   useEffect(() => {
     const controller = new AbortController();
+    const skip = (page - 1) * limit;
     const timer = setTimeout(() => {
       async function loadProducts() {
         try {
@@ -30,9 +35,10 @@ export default function Products() {
             return;
           }
 
-          const data = await getProducts();
+          const data = await getProducts(limit, skip);
 
           setProducts(data.products);
+          setTotal(data.total);
         } catch (error) {
           if (error.code === "ERR_CANCELED") {
             return;
@@ -49,7 +55,7 @@ export default function Products() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [search]);
+  }, [search, page, limit]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -145,6 +151,67 @@ export default function Products() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mb-4 flex items-center justify-end gap-2">
+        <label htmlFor="page-size" className="text-sm text-gray-600">
+          Products per page:
+        </label>
+
+        <select
+          id="page-size"
+          value={limit}
+          onChange={(event) => {
+            setLimit(Number(event.target.value));
+            setPage(1);
+          }}
+          className="rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+
+      <p className="mt-6 text-center text-sm text-gray-600">
+        Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of{" "}
+        {total}
+      </p>
+
+      <div className="mt-6 flex items-center justify-center gap-4">
+        <button
+          onClick={() => setPage((currentPage) => currentPage - 1)}
+          disabled={page === 1}
+          className="rounded-lg border bg-white px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+            (pageNumber) => (
+              <button
+                key={pageNumber}
+                onClick={() => setPage(pageNumber)}
+                className={`rounded-lg px-3 py-2 ${
+                  page === pageNumber
+                    ? "bg-blue-600 text-white"
+                    : "border bg-white"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            ),
+          )}
+        </div>
+
+        <button
+          onClick={() => setPage((currentPage) => currentPage + 1)}
+          disabled={page >= Math.ceil(total / limit)}
+          className="rounded-lg border bg-white px-4 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </main>
   );

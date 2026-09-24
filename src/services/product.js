@@ -1,9 +1,14 @@
 import api from "@/lib/axios";
 
-export async function getProducts() {
-    const response = await api.get("/products");
+export async function getProducts(limit, skip) {
+  const response = await api.get("/products", {
+    params: {
+      limit,
+      skip,
+    },
+  });
 
-    return response.data
+  return response.data;
 }
 
 export async function searchProducts(query, signal) {
