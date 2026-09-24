@@ -8,6 +8,7 @@ import {
   getCategories,
   getProductsByCategory,
 } from "@/services/product";
+import Link from "next/link";
 
 export default function Products() {
   const router = useRouter();
@@ -28,10 +29,10 @@ export default function Products() {
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "");
 
   useEffect(() => {
-  if (totalPages > 0 && page > totalPages) {
-    setPage(totalPages);
-  }
-}, [page, totalPages]);
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -218,7 +219,14 @@ export default function Products() {
                   />
                 </td>
 
-                <td className="border p-3">{product.title}</td>
+                <td className="border p-3">
+                  <Link
+                    href={`/products/${product.id}`}
+                    className="font-medium hover:underline"
+                  >
+                    {product.title}
+                  </Link>
+                </td>
 
                 <td className="border p-3">{product.category}</td>
 
@@ -246,7 +254,12 @@ export default function Products() {
             />
 
             <h2 className="text-lg font-semibold text-gray-900">
-              {product.title}
+              <Link
+                href={`/products/${product.id}`}
+                className="font-medium hover:underline"
+              >
+                {product.title}
+              </Link>
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">{product.category}</p>
