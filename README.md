@@ -1,36 +1,243 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Product Admin Dashboard
 
-## Getting Started
+A responsive Product Admin Dashboard built with Next.js, React, Tailwind CSS, Axios, and DummyJSON API.
 
-First, run the development server:
+## Tech Stack
+
+- Next.js
+- React
+- Tailwind CSS
+- Axios
+- JavaScript
+- DummyJSON API
+- Git & GitHub
+
+## Features
+
+### Authentication
+- Login using DummyJSON authentication API
+- Login validation
+- Access token stored in localStorage
+- Protected product pages
+- Logout functionality
+
+### Product Listing
+- Fetch products from DummyJSON API
+- Responsive desktop table
+- Responsive mobile cards
+- Product image
+- Title
+- Category
+- Price
+- Rating
+- Stock
+
+### Search
+- Product search using DummyJSON API
+- Debounced search
+- AbortController used to cancel previous requests
+- Search resets pagination to page 1
+
+### Pagination
+- API-based pagination using limit and skip
+- Page numbers
+- Previous and Next buttons
+- Page size options: 10, 20 and 50
+- Page state stored in URL
+
+### Category Filtering
+- Categories fetched from API
+- Filter products by category
+- Pagination resets when category changes
+
+### Sorting
+Products can be sorted by:
+
+- Price
+- Rating
+- Title
+
+### Product Details
+- Dynamic product details page
+- Product images
+- Description
+- Price
+- Rating
+- Reviews
+- Product not found handling
+
+### URL State
+The following values are stored in the URL:
+
+- Page
+- Search
+- Category
+- Sort
+
+This allows the current product-listing state to be refreshed or shared through the URL.
+
+### Responsive Design
+The dashboard is responsive for:
+
+- Desktop
+- Tablet
+- Mobile
+
+## API
+
+This project uses the DummyJSON API.
+
+Main endpoints:
+
+```text
+POST /auth/login
+
+GET /products
+GET /products/search?q=
+GET /products/categories
+GET /products/category/:category
+GET /products/:id
+POST /products/add
+PUT /products/:id
+DELETE /products/:id
+```
+
+## Demo Login
+
+```text
+Username: emilys
+Password: emilyspass
+```
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+```
+
+Open the project:
+
+```bash
+cd product-admin-dashboard-v2
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```text
+src/
+├── app/
+│   ├── login/
+│   ├── products/
+│   │   ├── add/
+│   │   ├── [id]/
+│   │   └── page.jsx
+│   ├── page.jsx
+│   └── globals.css
+│
+├── lib/
+│   └── axios.js
+│
+└── services/
+    ├── auth.js
+    ├── product.js
+    └── localProducts.js
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Important Implementation Details
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Debounced Search
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Search requests are delayed until the user stops typing.
 
-## Deploy on Vercel
+AbortController is used to cancel previous requests so older search results do not replace newer results.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### API Separation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+API calls are kept inside the `services` directory instead of being written directly inside UI components.
+
+### DummyJSON Mutations
+
+DummyJSON does not permanently persist product mutations.
+
+LocalStorage is used for local product handling.
+
+CRUD functionality is currently paused while the project is being finalized.
+
+## Current Project Status
+
+### Completed
+
+- Authentication
+- Protected product pages
+- Product listing
+- Responsive UI
+- Search
+- Debounced search
+- Request cancellation
+- Pagination
+- Category filtering
+- Sorting
+- URL query parameters
+- Product details
+- LocalStorage handling
+
+### Currently Paused
+
+- Add Product UI
+- Edit Product UI
+- Delete Product UI
+
+The related CRUD code remains in the project and can be continued later.
+
+## AI Assistance
+
+AI tools were used during development for:
+
+- Understanding React and Next.js concepts
+- Debugging errors
+- Learning Tailwind CSS
+- Structuring API services
+- Reviewing implementation approaches
+
+The code was manually implemented and tested while learning the concepts behind it.
+
+## What I Learned
+
+- React Hooks
+- Next.js App Router
+- Dynamic routes
+- Axios API integration
+- Authentication
+- LocalStorage
+- Debouncing
+- AbortController
+- Pagination
+- URL query parameters
+- Filtering and sorting
+- Responsive Tailwind CSS
+- Error handling
+- Git and GitHub
+
+## Author
+
+Faik
