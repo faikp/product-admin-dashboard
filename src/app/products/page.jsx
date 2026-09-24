@@ -143,6 +143,14 @@ export default function Products() {
         </h1>
 
         <button
+          type="button"
+          onClick={() => router.push("/products/add")}
+          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+        >
+          Add Product
+        </button>
+
+        <button
           onClick={handleLogout}
           className="rounded-lg bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700"
         >
