@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   getProducts,
   searchProducts,
@@ -11,15 +11,27 @@ import {
 
 export default function Products() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const initialPage = Number(searchParams.get("page"));
+  const [page, setPage] = useState(
+    Number.isInteger(initialPage) && initialPage > 0 ? initialPage : 1,
+  );
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
   const totalPages = Math.ceil(total / limit);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "",
+  );
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "");
+
+  useEffect(() => {
+  if (totalPages > 0 && page > totalPages) {
+    setPage(totalPages);
+  }
+}, [page, totalPages]);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -76,6 +88,30 @@ export default function Products() {
 
     loadCategories();
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (page !== 1) {
+      params.set("page", page);
+    }
+
+    if (search) {
+      params.set("search", search);
+    }
+
+    if (selectedCategory) {
+      params.set("category", selectedCategory);
+    }
+
+    if (sortBy) {
+      params.set("sort", sortBy);
+    }
+
+    const queryString = params.toString();
+
+    router.replace(queryString ? `/products?${queryString}` : "/products");
+  }, [page, search, selectedCategory, sortBy, router]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
